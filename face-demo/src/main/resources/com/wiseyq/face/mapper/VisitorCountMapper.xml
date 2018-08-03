@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wiseyq.face.mapper.VisitorCountMapper">
+
+    <resultMap id="VisitorCountMap" type="com.wiseyq.face.model.VisitorCount">
+        <result column="camera_id" jdbcType="VARCHAR" property="cameraId"/>
+        <result column="person_count" jdbcType="INTEGER" property="personCount"/>
+        <result column="create_time" jdbcType="DATE" property="createTime"/>
+    </resultMap>
+
+    <insert id="insertVisitorCount">
+        insert into FACE_VISITOR_COUNT (id, camera_id, person_count, create_time)
+        values (#{id}, #{cameraId}, #{personCount}, #{createTime})
+    </insert>
+    
+    <select id="findDailyVisitorCount" resultMap="VisitorCountMap">
+        select camera_id, sum(person_count) person_count, date_format(create_time, '%X%m%d') countDateStr
+        from FACE_VISITOR_COUNT
+        <where>
+            <if test="cameraId != null">
+                and camera_id = #{cameraId}
+            </if>
+            <if test="beginTime != null">
+                <![CDATA[ and create_time > #{beginTime} ]]>
+            </if>
+            <if test="endTime != null">
+                <![CDATA[ and create_time < #{endTime} ]]>
+            </if>
+        </where>
+        group by camera_id, date_format(create_time, '%X%m%d')
+    </select>
+    
+    <select id="findTimeVisitorCount" resultMap="VisitorCountMap">
+        select camera_id, sum(person_count) person_count, date_format(create_time, '%X%m%d%H00') countHourStr
+        from FACE_VISITOR_COUNT
+        <where>
+            <if test="cameraId != null">
+                and camera_id = #{cameraId}
+            </if>
+            <if test="beginTime != null">
+                <![CDATA[ and create_time > #{beginTime} ]]>
+            </if>
+            <if test="endTime != null">
+                <![CDATA[ and create_time < #{endTime} ]]>
+            </if>
+        </where>
+        group by camera_id, date_format(create_time, '%X%m%d%H00')
+    </select>
+    
+    <select id="getMaxId" resultType="java.lang.Long">
+        select ifnull(max(id), 0) from FACE_VISITOR_COUNT
+    </select>
+    
+</mapper>
