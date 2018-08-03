@@ -1,0 +1,12 @@
+<div style="display: block">
+    <p>{{ selectedDate }}</p>
+    <canvas baseChart 
+            [datasets]="barChartData" 
+            [labels]="barChartLabels" 
+            [options]="barChartOptions" 
+            [legend]="barChartLegend"
+            [chartType]="barChartType" 
+            (chartHover)="chartHovered($event)" 
+            (chartClick)="chartClicked($event)"></canvas>
+    <app-time-chart [date]="selectedDate"></app-time-chart>
+</div>

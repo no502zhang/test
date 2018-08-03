@@ -1,0 +1,5 @@
+{
+    "/visitors": {
+        "target": "http://localhost:8888"
+    }
+}
