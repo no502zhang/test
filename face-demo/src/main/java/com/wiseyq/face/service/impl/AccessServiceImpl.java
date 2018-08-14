@@ -7,8 +7,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.net.ssl.SSLContext;
-
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -19,14 +17,9 @@ import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContexts;
-
 import com.cloud.sdk.DefaultRequest;
 import com.cloud.sdk.Request;
 import com.cloud.sdk.auth.credentials.BasicCredentials;
@@ -43,13 +36,11 @@ public class AccessServiceImpl extends AccessService {
         super(serviceName, region, ak, sk);
     }
 
-    /** {@inheritDoc} */
-
     public HttpResponse access(URL url, Map<String, String> headers, InputStream content, Long contentLength,
             HttpMethodName httpMethod) throws Exception {
 
         // Make a request for signing.
-        Request request = new DefaultRequest(this.serviceName);
+        Request<Object> request = new DefaultRequest<>(this.serviceName);
         try {
             // Set the request address.
             request.setEndpoint(url.toURI());
@@ -60,7 +51,7 @@ public class AccessServiceImpl extends AccessService {
 
             if (urlString.contains("?")) {
                 parameters = urlString.substring(urlString.indexOf("?") + 1);
-                Map parametersmap = new HashMap<String, String>();
+                Map<String, String> parametersmap = new HashMap<>();
 
                 if (null != parameters && !"".equals(parameters)) {
                     String[] parameterarray = parameters.split("&");
@@ -104,12 +95,7 @@ public class AccessServiceImpl extends AccessService {
         }
 
         HttpResponse response = null;
-        SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, new TrustSelfSignedStrategy())
-                .useProtocol("TLS").build();
-        SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext,
-                new AllowAllHostnameVerifier());
-
-        client = HttpClients.custom().setSSLSocketFactory(sslSocketFactory).build();
+        client = HttpClients.createDefault();
         // Send the request, and a response will be returned.
         response = client.execute(httpRequestBase);
         return response;

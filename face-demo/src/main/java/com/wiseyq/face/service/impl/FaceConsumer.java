@@ -1,5 +1,8 @@
 package com.wiseyq.face.service.impl;
 
+//import java.nio.file.Files;
+//import java.nio.file.Paths;
+//import java.nio.file.StandardOpenOption;
 import java.util.Date;
 import java.util.List;
 
@@ -14,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+//import com.cloud.sdk.util.Base64;
 import com.huaweicloud.dis.DIS;
 import com.huaweicloud.dis.DISClientBuilder;
 import com.huaweicloud.dis.exception.DISClientException;
@@ -27,22 +31,23 @@ import com.huaweicloud.dis.iface.stream.response.DescribeStreamResult;
 import com.huaweicloud.dis.iface.stream.response.PartitionResult;
 import com.huaweicloud.dis.util.JsonUtils;
 import com.huaweicloud.dis.util.PartitionCursorTypeEnum;
-import com.wiseyq.face.mapper.VisitorCountMapper;
-import com.wiseyq.face.model.VisitorCount;
+import com.wiseyq.face.mapper.FaceInfoMapper;
+import com.wiseyq.face.model.FaceInfo;
 
-public class VisitorConutConsumer implements Runnable {
-    private static final Logger log = LoggerFactory.getLogger(VisitorConutConsumer.class);
+public class FaceConsumer implements Runnable {
+    private static final Logger log = LoggerFactory.getLogger(FaceConsumer.class);
 
     @Autowired
-    private VisitorCountMapper visitorCountMapper;
-
+    private FaceInfoMapper faceInfoMapper;
+    
     @Value("${dis.endpoint}")
     private String endpoint;
     @Value("${dis.region}")
     private String region;
     @Value("${dis.projectId}")
     private String projectId;
-    @Value("${dis.streamName}")
+
+    @Value("${frs.streamName}")
     private String streamName;
 
     @Value("${huawei.ak}")
@@ -53,7 +58,7 @@ public class VisitorConutConsumer implements Runnable {
     @PostConstruct
     public void init() {
         System.out.println("begin");
-        Thread thread = new Thread(this, "visitorConutConsumer");
+        Thread thread = new Thread(this, "faceConsumer");
         System.out.println("start");
         thread.start();
         System.out.println("end");
@@ -81,8 +86,8 @@ public class VisitorConutConsumer implements Runnable {
         // 配置数据下载分区ID
         String partitionId = "shardId-0000000000";
 
-        // 配置下载数据序列号
-        long startingSequenceNumber = visitorCountMapper.getMaxId();
+        // 配置下载数据序列号为之前取到的
+        long startingSequenceNumber = faceInfoMapper.getMaxId();
         if (startingSequenceNumber < NumberUtils.toLong(startNum.trim())) {
             startingSequenceNumber = NumberUtils.toLong(startNum.trim());
         }
@@ -115,16 +120,24 @@ public class VisitorConutConsumer implements Runnable {
 //                    log.info("Get Record [{}], partitionKey [{}], sequenceNumber [{}].",
 //                            new String(record.getData().array()), record.getPartitionKey(), record.getSequenceNumber());
                     JSONObject recordJSON = JSON.parseObject(new String(record.getData().array()));
-                    VisitorCount vc = new VisitorCount();
-                    vc.setSequenceNumber(record.getSequenceNumber());
-                    vc.setCameraId(recordJSON.getString("camera_id"));
-                    vc.setCreateTime(new Date(recordJSON.getLong("time") * 1000));
-                    vc.setPersonCount(recordJSON.getInteger("person_count"));
-                    vc.setStreamId("5bqtarswJprYrQBwpbB");
-                    vc.setPartitionId(partitionId);
-                    visitorCountMapper.insertVisitorCount(vc);
+                    FaceInfo faceInfo = new FaceInfo();
+                    faceInfo.setSequenceNumber(record.getSequenceNumber());
+                    faceInfo.setCameraId(recordJSON.getString("camera_id"));
+                    faceInfo.setCreateTime(new Date(recordJSON.getLong("time") * 1000));
+
+                    faceInfo.setStreamId("5bqtarswJprYrQBwpbB");
+                    faceInfo.setPartitionId(partitionId);
+
+                    faceInfo.setFaceId(recordJSON.getString("face_id"));
+                    faceInfo.setOriImgId(recordJSON.getString("ori_img_id"));
+                    faceInfo.setImageData(recordJSON.getString("image_data"));
+
+                    faceInfoMapper.insertFaceInfo(faceInfo);
+//                    FaceConsumer.Base64ToImage(recordJSON.getString("image_data"),
+//                            "E:\\face_image\\" + record.getSequenceNumber() + ".jpg");
+
                 }
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch (DISClientException e) {
                 log.error("Failed to get a normal response, please check params and retry. Error message [{}]",
                         e.getMessage(), e);
@@ -133,4 +146,23 @@ public class VisitorConutConsumer implements Runnable {
             }
         }
     }
+
+//    private static boolean Base64ToImage(String imgStr, String imgFilePath) { // 对字节数组字符串进行Base64解码并生成图片
+//        if (imgStr == null || imgStr == "") {
+//            // 图像数据为空
+//            return false;
+//        }
+//
+//        try {
+//            // Base64解码
+//            byte[] b = Base64.decode(imgStr);
+//            Files.write(Paths.get(imgFilePath), b, StandardOpenOption.CREATE);
+//
+//            return true;
+//        } catch (Exception e) {
+//            log.error(e.getMessage(), e);
+//            return false;
+//        }
+//    }
+
 }

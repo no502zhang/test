@@ -9,13 +9,13 @@
     </resultMap>
 
     <insert id="insertVisitorCount">
-        insert into FACE_VISITOR_COUNT (id, camera_id, person_count, create_time)
-        values (#{id}, #{cameraId}, #{personCount}, #{createTime})
+        insert into face_visitor_count (sequence_number, camera_id, person_count, create_time, stream_id, partition_id)
+        values (#{sequenceNumber}, #{cameraId}, #{personCount}, #{createTime}, #{streamId}, #{partitionId})
     </insert>
     
     <select id="findDailyVisitorCount" resultMap="VisitorCountMap">
         select camera_id, sum(person_count) person_count, date_format(create_time, '%X%m%d') countDateStr
-        from FACE_VISITOR_COUNT
+        from face_visitor_count
         <where>
             <if test="cameraId != null">
                 and camera_id = #{cameraId}
@@ -32,7 +32,7 @@
     
     <select id="findTimeVisitorCount" resultMap="VisitorCountMap">
         select camera_id, sum(person_count) person_count, date_format(create_time, '%X%m%d%H00') countHourStr
-        from FACE_VISITOR_COUNT
+        from face_visitor_count
         <where>
             <if test="cameraId != null">
                 and camera_id = #{cameraId}
@@ -48,7 +48,7 @@
     </select>
     
     <select id="getMaxId" resultType="java.lang.Long">
-        select ifnull(max(id), 0) from FACE_VISITOR_COUNT
+        select ifnull(max(sequence_number), 0) from face_visitor_count
     </select>
     
 </mapper>

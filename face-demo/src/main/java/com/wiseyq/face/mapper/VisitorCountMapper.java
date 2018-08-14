@@ -10,7 +10,7 @@ import com.wiseyq.face.model.VisitorCount;
 
 @Mapper
 public interface VisitorCountMapper {
-    int insertVisitorCount(VisitorCount record);
+    long insertVisitorCount(VisitorCount record);
 
     List<VisitorCount> findDailyVisitorCount(@Param("cameraId") String cameraId, @Param("beginTime") Date beginTime,
             @Param("endTime") Date endTime);

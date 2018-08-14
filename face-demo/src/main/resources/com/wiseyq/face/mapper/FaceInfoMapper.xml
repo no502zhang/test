@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wiseyq.face.mapper.FaceInfoMapper">
+
+    <insert id="insertFaceInfo">
+        insert into face_info (sequence_number, camera_id, create_time, stream_id, partition_id, face_id, ori_img_id, image_data)
+        values (#{sequenceNumber}, #{cameraId}, #{createTime}, #{streamId}, #{partitionId}, #{faceId}, #{oriImgId}, #{imageData})
+    </insert>
+        
+     <select id="getMaxId" resultType="java.lang.Long">
+        select ifnull(max(sequence_number), 0) from face_info
+    </select>
+    
+</mapper>

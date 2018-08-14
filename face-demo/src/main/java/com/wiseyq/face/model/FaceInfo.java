@@ -2,7 +2,7 @@ package com.wiseyq.face.model;
 
 import java.util.Date;
 
-public class VisitorCount {
+public class FaceInfo {
     private Long id;
 
     private String streamId;
@@ -10,11 +10,12 @@ public class VisitorCount {
     private String sequenceNumber;
 
     private String cameraId;
-    private Integer personCount;
-    private Date createTime;
 
-    private String countDateStr;
-    private String countHourStr;
+    private String oriImgId;
+    private String imageData;
+    private String faceId;
+
+    private Date createTime;
 
     public Long getId() {
         return id;
@@ -56,12 +57,28 @@ public class VisitorCount {
         this.cameraId = cameraId;
     }
 
-    public Integer getPersonCount() {
-        return personCount;
+    public String getOriImgId() {
+        return oriImgId;
     }
 
-    public void setPersonCount(Integer personCount) {
-        this.personCount = personCount;
+    public void setOriImgId(String oriImgId) {
+        this.oriImgId = oriImgId;
+    }
+
+    public String getImageData() {
+        return imageData;
+    }
+
+    public void setImageData(String imageData) {
+        this.imageData = imageData;
+    }
+
+    public String getFaceId() {
+        return faceId;
+    }
+
+    public void setFaceId(String faceId) {
+        this.faceId = faceId;
     }
 
     public Date getCreateTime() {
@@ -70,22 +87,6 @@ public class VisitorCount {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
-    }
-
-    public String getCountDateStr() {
-        return countDateStr;
-    }
-
-    public void setCountDateStr(String countDateStr) {
-        this.countDateStr = countDateStr;
-    }
-
-    public String getCountHourStr() {
-        return countHourStr;
-    }
-
-    public void setCountHourStr(String countHourStr) {
-        this.countHourStr = countHourStr;
     }
 
 }
