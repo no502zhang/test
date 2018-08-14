@@ -10,24 +10,26 @@ export class TimeChartComponent implements OnInit {
   constructor(private visitorCountService: VisitorCountService) { }
 
   ngOnInit() {
-    this.visitorCountService.listTimeVisitorCount(null, this.date).subscribe(timeVisitorCounts => {
-      let data = new Array(1);
-      data[0] = { data: new Array(24), label: '1栋A座西侧' }
-      for (let x = 0; x < this.lineChartLabels.length; x++) {
-        for (let i = 0; i < timeVisitorCounts.length; i++) {
-          console.log(this.lineChartLabels[x]);
-          console.log(timeVisitorCounts[i].countHourStr.substring(8));
-          if (this.lineChartLabels[x] == timeVisitorCounts[i].countHourStr.substring(8)) {
-            data[0].data[x] = timeVisitorCounts[i].personCount;
-            break;
-          }
-        }
-      }
-      this.lineChartData = data;
-    })
   }
 
-  @Input() date: Date;
+  @Input()
+  set cDate(value: Date) {
+    if (value) {
+      this.visitorCountService.listTimeVisitorCount('d573c281-8f9f-43f9-8174-7fbe7f7428d8', value).subscribe(timeVisitorCounts => {
+        let data = new Array(1);
+        data[0] = { data: new Array(24), label: '1栋A座西侧' }
+        for (let x = 0; x < this.lineChartLabels.length; x++) {
+          for (let i = 0; i < timeVisitorCounts.length; i++) {
+            if (this.lineChartLabels[x] == timeVisitorCounts[i].countHourStr.substring(8)) {
+              data[0].data[x] = timeVisitorCounts[i].personCount;
+              break;
+            }
+          }
+        }
+        this.lineChartData = data;
+      })
+    }
+  }
 
   // lineChart
   public lineChartData: Array<any> = [{ data: [0], label: '' }];
@@ -37,13 +39,4 @@ export class TimeChartComponent implements OnInit {
   };
   public lineChartLegend: boolean = true;
   public lineChartType: string = 'line';
-
-  // events
-  public chartClicked(e: any): void {
-    console.log(e);
-  }
-
-  public chartHovered(e: any): void {
-    console.log(e);
-  }
 }
