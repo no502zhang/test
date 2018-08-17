@@ -80,7 +80,6 @@ public class FaceConsumer implements Runnable {
         if (CollectionUtils.isNotEmpty(list)) {
             startNum = list.get(0).getSequenceNumberRange().substring(1,
                     list.get(0).getSequenceNumberRange().indexOf(":"));
-            System.out.println(startNum);
         }
 
         // 配置数据下载分区ID
@@ -104,7 +103,7 @@ public class FaceConsumer implements Runnable {
         GetPartitionCursorResult response = dic.getPartitionCursor(request);
         String cursor = response.getPartitionCursor();
 
-        log.info("Get stream {}[partitionId={}] cursor success : {}", streamName, partitionId, cursor);
+        log.info("Get stream {}[partitionId={}] StartingSequenceNumber : {} cursor success : {}", streamName, partitionId, startingSequenceNumber, cursor);
 
         GetRecordsRequest recordsRequest = new GetRecordsRequest();
         GetRecordsResult recordResponse = null;
